@@ -1,0 +1,6 @@
+// $Id$
+
+name = Last.fm
+description = What you're listening to
+dependencies = activitystream activitystream_feed
+package = Activity Stream

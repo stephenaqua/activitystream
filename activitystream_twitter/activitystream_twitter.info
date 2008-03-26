@@ -1,0 +1,6 @@
+// $Id$
+
+name = Twitter
+description = Public Twitter tweets
+dependencies = activitystream activitystream_feed
+package = Activity Stream

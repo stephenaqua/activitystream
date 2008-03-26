@@ -1,0 +1,6 @@
+// $Id$
+
+name = Flickr Stream
+description = Your activity on Flickr
+dependencies = activitystream
+package = Activity Stream

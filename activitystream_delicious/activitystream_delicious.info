@@ -1,0 +1,6 @@
+// $Id$
+
+name = Delicious Bookmarks
+description = Your links on Delicious
+dependencies = activitystream activitystream_feed
+package = Activity Stream

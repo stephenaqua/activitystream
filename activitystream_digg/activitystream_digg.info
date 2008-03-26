@@ -1,0 +1,6 @@
+// $Id$
+
+name = Digg
+description = What's been Dugg
+dependencies = activitystream activitystream_feed
+package = Activity Stream
