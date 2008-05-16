@@ -1,4 +1,4 @@
-// $Id$
+; $Id$
 
 name = Feed stream
 description = Pull in updates from any feed, includes the favicon
