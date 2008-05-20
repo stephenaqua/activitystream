@@ -59,3 +59,15 @@ function theme_activitystream_digg_item($activity) {
 	$name = theme('activitystream_username',$user);
 	return '<span class="activitystream-item">' . theme('activitystream_digg_icon') . " <span>$name dugg " . l($node->title, $activity->link) . " <span class=\"activitystream-created\">$date</span></span>" . l('#', 'node/' . $node->nid, array('class' => 'permalink')) . '</span>';
 }
+
+function activitystream_digg_theme() {
+  return array(
+    'activitystream_digg_icon' => array(
+      'arguments' => array(),
+    ),
+    'activitystream_digg_item' => array(
+      'arguments' => array('activity' => NULL),
+    ),
+  );
+}
+

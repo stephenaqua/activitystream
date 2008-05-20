@@ -82,3 +82,14 @@ function theme_activitystream_feed_item($activity) {
 	$name = theme('activitystream_username',$user);
 	return '<span class="activitystream-item">' . theme('activitystream_feed_icon',$activity->data) . " <span>$name posted " . l($node->title, $activity->link) . " <span class=\"activitystream-created\">$date</span></span>" . l('#', 'node/' . $node->nid, array('class' => 'permalink')) . '</span>'."\n";
 }
+
+function activitystream_feed_theme() {
+  return array(
+    'activitystream_feed_icon' => array(
+      'arguments' => array('params' => NULL),
+    ),
+    'activitystream_feed_item' => array(
+      'arguments' => array('activity' => NULL),
+    ),
+  );
+}

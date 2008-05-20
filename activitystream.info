@@ -3,4 +3,5 @@
 name = Activity Stream Core
 description = Core API module for Activity Streams
 package = Activity Stream
-dependencies = profile
+dependencies[] = profile
+core = 6.x

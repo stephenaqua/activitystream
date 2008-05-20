@@ -2,5 +2,6 @@
 
 name = Flickr Stream
 description = Your activity on Flickr
-dependencies = activitystream
+dependencies[] = activitystream 
 package = Activity Stream
+core = 6.x
