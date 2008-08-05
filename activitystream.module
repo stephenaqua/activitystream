@@ -130,6 +130,7 @@ function activitystream_user($op, &$edit, &$account, $category = NULL) {
 			return array('activitystream' => array('name' => 'activitystream', 'title' => variable_get('activitystream_title', 'Activity Stream'), 'weight' => 0));
 		break;
     case 'form':
+    $form = array();
 		if ($category == 'activitystream') {
 			foreach (module_implements('activitystream_settings') as $name) {
 				$function = $name .'_activitystream_settings';
