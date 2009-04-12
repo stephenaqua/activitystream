@@ -1,0 +1,7 @@
+; $Id$
+
+name = Local Activity
+description = Actions a user takes on this Drupal site
+dependencies[] = activitystream 
+package = Activity Stream
+core = 6.x
