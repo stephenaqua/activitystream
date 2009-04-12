@@ -63,7 +63,7 @@ function activitystream_flickr_activitystream_admin() {
   $form['activitystream_flickr']['activitystream_flickr_key'] = array(
     '#type' => 'textfield',
     '#title' => t("API Key"),
-    '#description' => t("Your Flickr API Key"),
+    '#description' => t('Your Flickr API Key (<a href="http://www.flickr.com/services/api/keys/apply/">Get a key</a>)'),
     '#default_value' => variable_get('activitystream_flickr_key', ''),
     '#required' => FALSE
   );
