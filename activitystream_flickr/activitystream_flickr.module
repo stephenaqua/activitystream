@@ -54,11 +54,10 @@ function activitystream_flickr_streamapi($user) {
 function activitystream_flickr_activitystream_admin() {
   $form['activitystream_flickr'] = array(
     '#type' => 'fieldset',
-    '#title' => t("Flickr"),
-    '#description' => t("Flickr API settings."),
+    '#title' => t("Flickr API settings"),
     '#weight' => 1,
-    '#collapsible' => TRUE,
-    '#collapsed' => TRUE
+    '#collapsible' => FALSE,
+    '#collapsed' => FALSE
   );
   $form['activitystream_flickr']['activitystream_flickr_key'] = array(
     '#type' => 'textfield',
