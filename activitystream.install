@@ -37,7 +37,9 @@ function activitystream_schema() {
        'module' => array('type' => 'varchar', 'length' => '255', 'not null' => FALSE),
        'guid' => array('type' => 'varchar', 'length' => '32', 'not null' => TRUE),
        'link' => array('type' => 'varchar', 'length' => '255'),
-       'data' => array('type' => 'text')),
+       'data' => array('type' => 'text'),
+       'changed' => array('type' => 'int', 'unsigned' => TRUE, 'not null' => TRUE, 'default' => 0, 'disp-width' => '10')
+       ),
     'primary key' => array('guid'),
   );
 
