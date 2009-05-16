@@ -211,6 +211,11 @@ function activitystream_user($op, &$edit, &$account, $category = NULL) {
       return $form;
       break;
     case 'update':
+      if ($category != 'activitystream') {
+        // The user is saving another tab on the account page, so don't
+        // run the activity stream settings
+        break;
+      }
       foreach (module_implements('activitystream_settings') as $name) {
         if (user_access('use '. $name)) {
           $arrdetails = array();
