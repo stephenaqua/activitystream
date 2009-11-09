@@ -62,7 +62,7 @@ function theme_activitystream_lastfm_item($activity) {
   $date = theme('activitystream_date', $node->created);
   $user = user_load(array('uid' => $node->uid));
   $name = theme('activitystream_username', $user);
-  return '<span class="activitystream-item">'. theme('activitystream_lastfm_icon') ." <span>$name listened to ". l($node->title, $activity->link) ." <span class=\"activitystream-created\">$date</span></span>". l('#', 'node/'. $node->nid, array('class' => 'permalink')) .'</span>';
+  return '<span class="activitystream-item">'. theme('activitystream_lastfm_icon') ." <span>$name " . t('listened to') . " " . l($node->title, $activity->link) ." <span class=\"activitystream-created\">$date</span></span>". l('#', 'node/'. $node->nid, array('class' => 'permalink')) .'</span>';
 }
 
 function activitystream_lastfm_theme() {

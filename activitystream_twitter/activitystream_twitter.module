@@ -98,7 +98,7 @@ function theme_activitystream_twitter_item($activity) {
     $pics .= '<br/>'. $linked[1];
   }
   $name = theme('activitystream_username', $user);
-   return '<span class="activitystream-item">'. theme('activitystream_twitter_icon') ." <span>$name ". l('tweeted', $activity->link) ." \"". $title ."\" <span class=\"activitystream-created\">$date</span></span> ". l('#', 'node/'. $node->nid, array('class' => 'permalink')) . $pics .'</span>';
+   return '<span class="activitystream-item">'. theme('activitystream_twitter_icon') ." <span>$name ". l(t('tweeted'), $activity->link) ." \"". $title ."\" <span class=\"activitystream-created\">$date</span></span> ". l('#', 'node/'. $node->nid, array('class' => 'permalink')) . $pics .'</span>';
 }
 
 function activitystream_twitter_makelinks($text) {
