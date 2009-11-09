@@ -232,6 +232,9 @@ function activitystream_user($op, &$edit, &$account, $category = NULL) {
         '#attributes' => array('class' => 'activitystream'),
        );
       break;
+    case 'delete':
+      $result = db_query('DELETE FROM {activitystream_accounts} WHERE uid = %d', $account->uid);
+      break;
   }
 }
 
