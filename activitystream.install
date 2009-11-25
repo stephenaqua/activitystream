@@ -76,7 +76,9 @@ function activitystream_uninstall() {
   So we can remove the dummy category from the database.
 */
 function activitystream_update_1() {
-  db_query("DELETE FROM {profile_fields} WHERE title = 'Placeholder' and name = 'profile_activitystream_placeholder'");
+  if (module_exists('profile')) {
+    db_query("DELETE FROM {profile_fields} WHERE title = 'Placeholder' and name = 'profile_activitystream_placeholder'");    
+  }
 }
 
 /*

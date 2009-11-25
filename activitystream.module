@@ -414,7 +414,7 @@ function activitystream_get_activity($user = NULL, $show_buddies = FALSE, $count
 }
 
 function theme_activitystream_header($action) {
-  return '<h3 class="datehead">' . format_date($action->created, 'custom', 'F j, Y') . '</h3>';
+  return '<h3 class="datehead">'. format_date($action->created, 'medium') .'</h3>';
 }
 
 function theme_activitystream_item($action) {
