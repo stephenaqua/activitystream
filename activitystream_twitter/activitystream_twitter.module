@@ -23,20 +23,24 @@ function activitystream_twitter_streamapi($user) {
   $items = activitystream_feed_streamapi($user);
   foreach ($items as $tweet) {
     $userid = $user->userid .':';
-    $tweet['title'] = preg_replace('/^'. $userid .' /i', '', $tweet['title']);
-    $tweet['body'] = preg_replace('/^'. $userid .' /i', '', $tweet['body']);
+    $tweet['title'] = preg_replace('/^'. $userid .' /', '', $tweet['title']);
     // If the admin has asked not to show replies, 
     // skip any tweet that starts with @
     if (variable_get('activitystream_twitter_mentions', '1') == 0 && substr($tweet['title'], 0, 1) == '@') {
       continue;
     }
     $tweet['body'] = activitystream_twitter_makelinks($tweet['body']);
-    $tweet['body'] = $tweet['body'][0];
     $newitems[] = $tweet;
   }
   return $newitems;
 }
-
+function activitystream_twitter_activitystream_info($user) {
+  $info = array(
+    'title' => 'Twitter',
+    'profile_url' => 'http://twitter.com/'. $user->userid,
+  );
+  return $info;
+}
 /*
  * Implement a user settings form hook. Modules should build a form
  * using an array that mirrors the Drupal form API. activitystream.module
@@ -56,7 +60,11 @@ function activitystream_twitter_streamapi($user) {
 function activitystream_twitter_activitystream_settings(&$edit) {
   $form['activitystream_twitter'] = array(
       '#type' => 'fieldset',
-      '#title' => t('Twitter settings'));
+      '#title' => t('Twitter settings'),
+      '#collapsible' => TRUE, 
+      '#collapsed' => TRUE, 
+      '#tree' => TRUE,
+  );
   $form['activitystream_twitter']['activitystream_twitter_userid'] = array(
     '#type' => 'textfield',
     '#title' => t('Username'),
@@ -86,7 +94,7 @@ function activitystream_twitter_activitystream_admin() {
 
 
 function theme_activitystream_twitter_icon() {
-  return theme_image(drupal_get_path('module', 'activitystream_twitter') .'/twitter.png', 'Twitter');
+  return theme('image', array('path' => drupal_get_path('module', 'activitystream_twitter') .'/twitter.png', 'alt' => 'Twitter'));
 }
 
 function theme_activitystream_twitter_item($activity) {
@@ -105,6 +113,7 @@ function theme_activitystream_twitter_item($activity) {
 
 function activitystream_twitter_makelinks($text) {
   // twitpic images
+  $pics = '';
   preg_match_all("/http:\/\/twitpic\.com\/(.*)/i", $text, $matches, PREG_PATTERN_ORDER);
   foreach ($matches[1] as $match) {
     if (!empty($match[1])) {
@@ -118,16 +127,18 @@ function activitystream_twitter_makelinks($text) {
   $text = preg_replace('/\b@(\w*)\b/', '<a href="http://twitter.com/\\1">@\\1</a>', $text);
   // hashtags to search.twitter
   $text = preg_replace('/\b#(\w*)\b/', '<a href="http://search.twitter.com/search?q=%23\\1">#\\1</a>', $text);
+  // $text = preg_replace("/<a href=\"http:\/\/twitpic\.com\/(.*)\">http:\/\/twitpic\.com\/(.*)<\/a>/i", 
+  //                     "<a href=\"http://twitpic.com/$1\"><img src=\"http://twitpic.com/show/mini/$1.jpg\" /></a>", $text);
   return array($text, $pics);
 }
 
 function activitystream_twitter_theme() {
   return array(
     'activitystream_twitter_icon' => array(
-      'arguments' => array(),
+      'variables' => array(),
     ),
     'activitystream_twitter_item' => array(
-      'arguments' => array('activity' => NULL),
+      'variables' => array('activity' => NULL),
     ),
   );
 }

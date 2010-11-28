@@ -5,6 +5,8 @@
  * The module for importing Flickr Images.
  */
 
+include('phpFlickr.php');
+
 /*
  * The API passes in a $user object that contains four properties:
  * uid, userid, password, feed. These properties contain the account
@@ -18,33 +20,27 @@ function activitystream_flickr_streamapi($user) {
   if (!$user->userid) {
     return;
   }
-  if (module_exists('flickrapi')) {
-    $f = flickrapi_phpFlickr();
-  } else {
-    // Use a local copy and settings for flickr
-    include('phpFlickr.php');
-    $apikey = variable_get('activitystream_flickr_key', '');
-    if ($apikey == '') {
-      watchdog('activitystream', 'Flickr API Key is missing.', null, WATCHDOG_ERROR);
-      return;
-    }
-    $f = new phpFlickr($apikey, '');
+  $apikey = variable_get('activitystream_flickr_key', '');
+  if ($apikey == '') {
+    watchdog('activitystream', 'Flickr API Key is missing.', WATCHDOG_ERROR);
+    return;
   }
+  $f = new phpFlickr($apikey, '');
   // Cache to the filesystem in the temp directory set by Drupal
   $f->enableCache ('fs', file_directory_temp());
   if (!$person = $f->people_findByUsername($user->userid)) {
-    watchdog('activitystream', 'Unable to connect to Flickr: error code: %code %message', array('%code' => $error_code, '%message' => $error_msg), WATCHDOG_ERROR);
+    watchdog('activitystream', 'Unable to connect to Flickr: error code: '. $error_code .' '. $error_msg, WATCHDOG_ERROR);
     return;
   }
   if (!$baseurl = $f->urls_getUserPhotos($person['id'])) {
-    watchdog('activitystream', 'Unable to connect to Flickr: error code: %code %message', array('%code' => $error_code, '%message' => $error_msg), WATCHDOG_ERROR);
+    watchdog('activitystream', 'Unable to connect to Flickr: error code: '. $error_code .' '. $error_msg, WATCHDOG_ERROR);
     return;
   }
   if (!$photos = $f->people_getPublicPhotos($person['id'], NULL, NULL, 10)) {
-    watchdog('activitystream', 'Unable to get photos from Flickr: error code: %code %message', array('%code' => $error_code, '%message' => $error_msg), WATCHDOG_ERROR);
+    watchdog('activitystream', 'Unable to get photos from Flickr: error code: '. $error_code .' '. $error_msg, WATCHDOG_ERROR);
   }
   if (!$favorites = $f->favorites_getPublicList($person['id'], NULL, NULL, NULL, 10)) {
-    watchdog('activitystream', 'Unable to get Flickr favorites: error code: %code %message', array('%code' => $error_code, '%message' => $error_msg), WATCHDOG_ERROR);
+    watchdog('activitystream', 'Unable to get Faorites Flickr: error code: '. $error_code .' '. $error_msg, WATCHDOG_ERROR);
   }
   
   $photoitems = activitystream_flickr_build_items($photos, $baseurl, 'photo', $f);
@@ -53,7 +49,30 @@ function activitystream_flickr_streamapi($user) {
 
   return $items;
 }
-
+function activitystream_flickr_wh_activitystream_info($user) {
+  //TODO: CACHE THIS
+  $apikey = variable_get('activitystream_flickr_key', '');
+  if ($apikey == '') {
+    watchdog('activitystream', 'Flickr API Key is missing.', WATCHDOG_ERROR);
+    return;
+  }
+  $f = new phpFlickr($apikey, '');
+  // Cache to the filesystem in the temp directory set by Drupal
+  $f->enableCache ('fs', file_directory_temp());
+  if (!$person = $f->people_findByUsername($user->userid)) {
+    watchdog('activitystream', 'Unable to connect to Flickr: error code: '. $error_code .' '. $error_msg, WATCHDOG_ERROR);
+    return;
+  }
+  if (!$profileurl = $f->urls_getUserProfile($person['id'])) {
+    watchdog('activitystream', 'Unable to connect to Flickr: error code: '. $error_code .' '. $error_msg, WATCHDOG_ERROR);
+    return;
+  }
+  $info = array(
+    'title' => 'Flickr',
+    'profile_url' => $profileurl,
+  );
+  return $info;
+}
 function activitystream_flickr_build_items($photos, $baseurl, $type = 'photo', &$f) {
   $items = array();
   if (!is_array($photos['photos']['photo'])) {
@@ -65,7 +84,16 @@ function activitystream_flickr_build_items($photos, $baseurl, $type = 'photo', &
     $activity['guid'] = $photo['id'];
     $activity['title'] = $photo['title'];
     $activity['link'] = $link;
-    $activity['body'] = '<img class="activitystream-flickr photo" alt="'. $photo['title'] .'" src="'. $f->buildPhotoURL($photo, "Square") .'" />';
+    $activity['body'] = '<img class="activitystream-flickr photo" alt="'. $photo['title'] .'" src="'. $f->buildPhotoURL($info, "Square") .'" />';
+    $activity['description'] = $info['description'];
+    $activity['images'] = array(
+			"square" => $f->buildPhotoURL($info, "square") ,
+			"thumbnail" => $f->buildPhotoURL($info, "thumbnail") ,
+			"small" => $f->buildPhotoURL($info, "small") ,
+			"medium" => $f->buildPhotoURL($info, "medium") ,
+			"large" => $f->buildPhotoURL($info, "large") ,
+			"original" => $f->buildPhotoURL($info, "original"),
+    );
     $activity['timestamp'] = $info['dateuploaded'];
     $activity['data'] = serialize(array('type' => $type));
     $items[] = $activity;
@@ -92,7 +120,7 @@ function activitystream_flickr_activitystream_admin() {
   $form['activitystream_flickr']['activitystream_flickr_key'] = array(
     '#type' => 'textfield',
     '#title' => t("API Key"),
-    '#description' => t('Your Flickr API Key (<a href="http://www.flickr.com/services/api/keys/apply/">Get a key</a>)'),
+    '#description' => t('Your Flickr API Key (<a href="@link">Get a key</a>)', array('@link' => "http://www.flickr.com/services/api/keys/apply/")),
     '#default_value' => variable_get('activitystream_flickr_key', ''),
     '#required' => FALSE
   );
@@ -113,12 +141,17 @@ function activitystream_flickr_activitystream_admin() {
 function activitystream_flickr_activitystream_settings(&$edit) {
   $form['activitystream_flickr'] = array(
       '#type' => 'fieldset',
-      '#title' => t('Flickr settings'));
+      '#title' => t('Flickr settings'),
+      '#collapsible' => TRUE, 
+      '#collapsed' => TRUE, 
+      '#tree' => TRUE,
+  );
   $form['activitystream_flickr']['activitystream_flickr_userid'] = array(
     '#type' => 'textfield',
     '#title' => t('Username'),
     '#default_value' => empty($edit['activitystream_flickr_userid']) ? '' : $edit['activitystream_flickr_userid'],
-    '#description' => t('The username for your Flickr account'));
+    '#description' => t('The username for your Flickr account'),
+  );
   return $form;  
 }
 
@@ -127,7 +160,7 @@ function activitystream_flickr_activitystream_settings(&$edit) {
  * so you should stick with that. Return the full <img> tag for the image.
  */
 function theme_activitystream_flickr_icon() {
-  return theme_image(drupal_get_path('module', 'activitystream_flickr') .'/flickr.png', 'Flickr');
+  return theme('image', array('path' => drupal_get_path('module', 'activitystream_flickr') .'/flickr.png', 'alt' => 'Flickr'));
 }
 
 function theme_activitystream_flickr_item($action) {
@@ -142,10 +175,10 @@ function theme_activitystream_flickr_item($action) {
 function activitystream_flickr_theme() {
   return array(
     'activitystream_flickr_icon' => array(
-      'arguments' => array(),
+      'variables' => array(),
     ),
     'activitystream_flickr_item' => array(
-      'arguments' => array('activity' => NULL),
+      'variables' => array('activity' => NULL),
     ),
   );
 }
