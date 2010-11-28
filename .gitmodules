@@ -1,3 +1,0 @@
-[submodule "activitystream_feed/simplepie"]
-	path = activitystream_feed/simplepie
-	url = git://github.com/simplepie/simplepie.git
