@@ -98,17 +98,18 @@ function theme_activitystream_twitter_icon() {
 }
 
 function theme_activitystream_twitter_item($activity) {
-  $node = node_load($activity->nid);
-  $date = theme('activitystream_date', $node->created);
-  $user = user_load(array('uid' => $node->uid));
+  $node = node_load($activity['nid']);
+  $date = theme('activitystream_date', array('date' => $node->created));
+  $user = user_load($node->uid);
   $linked = activitystream_twitter_makelinks($node->title);
   $title = $linked[0];
   // Add twitpic thmbs to the text
+  $pics = '' ;
   if ($linked[1] != '') {
     $pics .= '<br/>'. $linked[1];
   }
-  $name = theme('activitystream_username', $user);
-   return '<span class="activitystream-item">'. theme('activitystream_twitter_icon') ." <span>$name ". l(t('tweeted'), $activity->link) ." \"". $title ."\" <span class=\"activitystream-created\">$date</span></span> ". l('#', 'node/'. $node->nid, array('class' => 'permalink')) . $pics .'</span>';
+  $name = theme('activitystream_username', array('user' => $user));
+  return '<span class="activitystream-item">'. theme('activitystream_twitter_icon') ." <span>$name ". l(t('tweeted'), $activity['link']) ." \"". $title ."\" <span class=\"activitystream-created\">$date</span></span> ". l('#', 'node/'. $node->nid, array('class' => 'permalink')) . $pics .'</span>';
 }
 
 function activitystream_twitter_makelinks($text) {
