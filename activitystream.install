@@ -51,8 +51,9 @@ function activitystream_schema() {
        'userid' => array('type' => 'varchar', 'length' => '255', 'not null' => FALSE),
        'password' => array('type' => 'varchar', 'length' => '255', 'not null' => FALSE),
        'feed' => array('type' => 'varchar', 'length' => '255', 'not null' => FALSE),
-       'lastfetch' => array('mysql_type' => 'datetime', 'not null' => TRUE)), //NOTE, see documentation here for why this becomes mysql_type: http://drupal.org/update/modules/6/7#db_specific_types
-       );
+       'lastfetch' => array('mysql_type' => 'datetime', 'not null' => FALSE), //NOTE, see documentation here for why this becomes mysql_type: http://drupal.org/update/modules/6/7#db_specific_types
+    ), 
+  );
 
   return $schema;
 }
