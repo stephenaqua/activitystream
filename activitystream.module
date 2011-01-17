@@ -316,7 +316,7 @@ function activitystream_page($uid = 0) {
     drupal_set_breadcrumb(array(l(t('Home'), NULL), l(t('Activity Stream'), 'stream')));
   } 
   else {
-    drupal_set_title(check_plain('All user\'s '. $title .'s'));
+    drupal_set_title("All user's ". $title ."s");
     $items = activitystream_get_activity();    
   }
   $output = theme('activitystream', array('items' => $items));
