@@ -345,7 +345,7 @@ function activitystream_feed($uid = 0) {
     else {
       $theme_function = 'activitystream_item';
     }
-    $text = theme($theme_function, $item);
+    $text = theme($theme_function, array('item' => $item));
     $node = node_load($item->nid);
     $extra = array_merge(array(array('key' => 'pubDate', 'value' => gmdate('r', $node->created)), array('key' => 'dc:creator', 'value' => $node->name), array('key' => 'guid', 'value' => $node->nid .' at '. $base_url .'/stream', 'attributes' => array('isPermaLink' => 'false'))));
     $feed_items .= format_rss_item($item->title, $item->link, $text, $extra);
@@ -376,9 +376,9 @@ function activitystream_feed($uid = 0) {
   print $output;
 }
 
-/*
-  hook_view
-*/
+/**
+ * Implements hook_view().
+ */
 function activitystream_view($node, $teaser = FALSE, $page = FALSE) {
   $user = _activitystream_user_load($node->uid);
   $title = variable_get('activitystream_title', 'Activity Stream');
@@ -398,6 +398,9 @@ function activitystream_view($node, $teaser = FALSE, $page = FALSE) {
   return $node;
 }
 
+/**
+ *
+ */
 function _activitystream_get_activity($user = NULL, $show_buddies = FALSE, $count = NULL) {
   if ($count == NULL) {
     $count = variable_get('default_nodes_main', 10);
@@ -443,6 +446,9 @@ function _activitystream_get_activity($user = NULL, $show_buddies = FALSE, $coun
   return $items;
 }
 
+/**
+ *
+ */
 function activitystream_get_activity($user = NULL, $show_buddies = FALSE, $count = NULL) {
   $items = _activitystream_get_activity($user, $show_buddies, $count);
   $return = array();
@@ -450,7 +456,7 @@ function activitystream_get_activity($user = NULL, $show_buddies = FALSE, $count
   foreach ($items as $action) {
     if (date('Ymd', $action['created']) != $datehead) {
       $datehead = date('Ymd', $action['created']);
-      $return[$datehead]['title'] = theme('activitystream_header', $action);
+      $return[$datehead]['title'] = theme('activitystream_header', array('action' => $action));
     }
     
     if (function_exists('theme_'. $action['module'] .'_item')) {
@@ -460,23 +466,34 @@ function activitystream_get_activity($user = NULL, $show_buddies = FALSE, $count
       $theme_function = 'activitystream_item';
     }
     
-    $return[$datehead]['items'][] = theme($theme_function, $action);
+    $return[$datehead]['items'][] = theme($theme_function, array('action' => $action));
   }
   return $return;
 }
 
-function theme_activitystream_header($action) {
-  return '<h3 class="datehead">'. format_date($action['created'], 'medium') .'</h3>';
+/**
+ * Theme an ActivityStream item header.
+ */
+function theme_activitystream_header($variables) {
+  return '<h3 class="datehead">'. format_date($variables['action']['created'], 'medium') .'</h3>';
 }
 
-function theme_activitystream_item($action) {
-  $action = $action['action'];
-  $node = node_load($action['nid']);
+/**
+ * Theme an ActivityStream item.
+ *
+ * @param $variables
+ *   An associative array containing:
+ *   - action: An ActivityStream action object containing:
+ *             - nid: Integer Node ID
+ *             - module: String representing the AS module
+ */
+function theme_activitystream_item($variables) {
+  $node = node_load($variables['action']->nid);
   $date = theme('activitystream_date', array('date' => $node->created));
   $user = _activitystream_user_load($node->uid);
   $name = theme('activitystream_username', array('user' => $user));
-  if (function_exists('theme_'.$action->module .'_icon')) {
-    $theme_function = $action->module .'_icon';
+  if (function_exists('theme_'.$variables['action']->module .'_icon')) {
+    $theme_function = $variables['action']->module .'_icon';
   } 
   else {
     $theme_function = 'activitystream_icon';
@@ -484,7 +501,15 @@ function theme_activitystream_item($action) {
   return '<span class="activitystream-item">'. theme($theme_function, $activity) ." <span>$name ". l($node->title, 'node/'. $node->nid) ." <span class=\"activitystream-created\">$date</span></span>". l('#', 'node/'. $node->nid, array('class' => 'permalink')) ."</span>\n";
 }
 
-
+/**
+ * Theme an ActivityStream item.
+ *
+ * @param $variables
+ *   An associative array containing:
+ *   - items: An associative array containing:
+ *            - title: Title string.
+ *            - items: Array of AS items.
+ */
 function theme_activitystream($variables) {
   drupal_add_css(drupal_get_path('module', 'activitystream') .'/activitystream.css');
   if (!count($variables['items'])) {
@@ -493,16 +518,30 @@ function theme_activitystream($variables) {
   $ret = '' ;
   foreach ($variables['items'] as $day) {
     $ret .= "\n{$day['title']}\n";
-    $ret .= theme('item_list', $day);
+    $ret .= theme('item_list', array('items' => $day));
   }
   return '<div id="activitystream">'."\n". $ret ."\n</div>";
 }
 
+/**
+ * Theme an ActivityStream item.
+ *
+ * @param $variables
+ *   An associative array containing:
+ *   - date: Timestamp
+ */
 function theme_activitystream_date($variables) {
   $date = format_date($variables['date'], 'custom', 'g:ia');
   return $date;
 }
 
+/**
+ * Theme an ActivityStream username.
+ *
+ * @param $variables
+ *   An associative array containing:
+ *   - user: A Drupal user object.
+ */
 function theme_activitystream_username($variables) {
   $arrnames = split(' ', $variables['user']->name);
   if (user_access('access user profiles')) {
@@ -513,21 +552,30 @@ function theme_activitystream_username($variables) {
   }
 }
 
-function theme_activitystream_view($activity) {
-  $activity = $activity['activity'];
-  $node = node_load($activity['nid']);
-  if (function_exists('theme_'.$activity['module'] .'_icon')) {
-    $theme_function = $activity['module'] .'_icon';
+/**
+ * Theme view of an ActivityStream item.
+ *
+ * @param $variables
+ *   An associative array containing:
+ *   - activity: An ActivityStream activity.
+ */
+function theme_activitystream_view($variables) {
+  $node = node_load($variables['activity']['nid']);
+  if (function_exists('theme_'.$variables['activity']['module'] .'_icon')) {
+    $theme_function = $variables['activity']['module'] .'_icon';
   } 
   else {
     $theme_function = 'activitystream_icon';
   }
   $return = '<p class="activitystream-original">See original: ';
-  $return .= theme($theme_function, $activity) .'  '. l($node->title, $activity['link']);
+  $return .= theme($theme_function, $variables['activity']) .'  '. l($node->title, $variables['activity']['link']);
   $return .= '</p>';
   return $return;
 }
 
+/**
+ * Implements hook_cron().
+ */
 function activitystream_cron() {
   module_load_include('inc', 'node', 'node.pages');
   $number_of_hours = variable_get('activitystream_cron_hours', 1);
@@ -583,13 +631,21 @@ function activitystream_job_queue_functions() {
   );
   return $functions;
 }
+
+/**
+ * Implements hook_user_load().
+ */
 function activitystream_user_load($users) {
   foreach($users as $key=>$user) {
-    if(!isset($users[$key]->activity_accounts))
-    $users[$key]->activity_accounts = _activitystream_load_account_info($key);
+    if(!isset($users[$key]->activity_accounts)) {
+      $users[$key]->activity_accounts = _activitystream_load_account_info($key);
+    }
   }
 }
 
+/**
+ * Helper function for activitystream_user_load().
+ */
 function _activitystream_load_account_info($uid) {
   $accounts = array();
   //loop through all existing activitystream modules and grab the profileUrl if it exists
@@ -608,16 +664,25 @@ function _activitystream_load_account_info($uid) {
   }
   return $accounts;
 }
+
+/**
+ * 
+ */
 function _activitystream_load_accounts($uid) {
   $query = db_query("SELECT userid, password, feed, module FROM {activitystream_accounts} WHERE uid = :uid", array(':uid' => $uid));
-  $activity = $query->fetchAll();
-  return $activity;
+  $accounts = $query->fetchAll();
+  return $accounts;
 }
+
+/**
+ * @TODO should probably be combined with _activitystream_load_accounts()
+ */
 function _activitystream_load_accounts_with_module($uid, $module) {
   $query = db_query('SELECT userid, password, feed, module FROM {activitystream_accounts} WHERE module = :module and uid = :uid', array(':module' => $module, ':uid'  => $uid));
-  $activity = $query->fetchObject();
-  return $activity;
+  $accounts = $query->fetchObject();
+  return $accounts;
 }
+
 /**
  * Implementation of hook_settings()
  */
@@ -930,10 +995,10 @@ function block_activitystream_content($which_block) {
   switch ($which_block) {
     case 0:
       $items = activitystream_get_activity();
-      return theme('activitystream', $items);
+      return theme('activitystream', array('items' => $items));
     case 1:
       $args = func_get_args();
       $items = activitystream_get_activity($args[1]);
-      return theme('activitystream', $items);
+      return theme('activitystream', array('items' => $items));
   }
 }
