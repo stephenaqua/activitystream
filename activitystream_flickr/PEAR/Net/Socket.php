@@ -17,7 +17,6 @@
 // |          Chuck Hagenbuch <chuck@horde.org>                           |
 // +----------------------------------------------------------------------+
 //
-// $Id$
 
 require_once dirname(dirname(__FILE__)) . '/PEAR.php';
 

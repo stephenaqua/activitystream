@@ -1,4 +1,3 @@
-$Id$
 
 Copyright 2008 Adam Kalsey http://kalsey.com
 

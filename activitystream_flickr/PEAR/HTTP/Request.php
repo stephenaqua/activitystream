@@ -32,7 +32,6 @@
 // | Author: Richard Heyes <richard@phpguru.org>                           |
 // +-----------------------------------------------------------------------+
 //
-// $Id$
 //
 // HTTP_Request Class
 //

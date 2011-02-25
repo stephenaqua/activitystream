@@ -1,5 +1,4 @@
 <?php
-// $Id$
 
 /**
  * Field handler to provide title links to drupal nodes
