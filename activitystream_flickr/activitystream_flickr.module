@@ -1,4 +1,5 @@
 <?php
+
 /**
  * @file
  * The module for importing Flickr Images.
@@ -86,12 +87,12 @@ function activitystream_flickr_build_items($photos, $baseurl, $type = 'photo', &
     $activity['body'] = '<img class="activitystream-flickr photo" alt="'. $photo['title'] .'" src="'. $f->buildPhotoURL($info, "Square") .'" />';
     $activity['description'] = $info['description'];
     $activity['images'] = array(
-			"square" => $f->buildPhotoURL($info, "square") ,
-			"thumbnail" => $f->buildPhotoURL($info, "thumbnail") ,
-			"small" => $f->buildPhotoURL($info, "small") ,
-			"medium" => $f->buildPhotoURL($info, "medium") ,
-			"large" => $f->buildPhotoURL($info, "large") ,
-			"original" => $f->buildPhotoURL($info, "original"),
+                        "square" => $f->buildPhotoURL($info, "square") ,
+                        "thumbnail" => $f->buildPhotoURL($info, "thumbnail") ,
+                        "small" => $f->buildPhotoURL($info, "small") ,
+                        "medium" => $f->buildPhotoURL($info, "medium") ,
+                        "large" => $f->buildPhotoURL($info, "large") ,
+                        "original" => $f->buildPhotoURL($info, "original"),
     );
     $activity['timestamp'] = $info['dateuploaded'];
     $activity['data'] = serialize(array('type' => $type));

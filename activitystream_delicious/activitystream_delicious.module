@@ -1,10 +1,13 @@
 <?php
+
 /**
  * @file
  * The module for importing del.icio.us links
  */
  
-/*
+/**
+ * Implements hook_streamapi().
+ *
  * The API passes in a $user object that contains four properties:
  * uid, userid, password, feed. These properties contain the account
  * information entered into the user's settings page, along with the 
@@ -25,6 +28,9 @@ function activitystream_delicious_streamapi($user) {
   return $items;
 }
 
+/**
+ * Implements hook_activitystream_info().
+ */
 function activitystream_delicious_activitystream_info($user) {
   $info = array(
     'title' => 'Delicious',
@@ -64,18 +70,31 @@ function activitystream_delicious_activitystream_settings(&$edit) {
   return $form;  
 }
 
-function theme_activitystream_delicious_icon() {
+/**
+ * Theme the AS Delicious icon.
+ */
+function theme_activitystream_delicious_icon($variables) {
   return theme('image', array('path' => drupal_get_path('module', 'activitystream_delicious') .'/delicious.png', 'alt' => 'Del.icio.us'));
 }
 
-function theme_activitystream_delicious_item($action) {
-  $node = node_load($action->nid);
-  $date = theme('activitystream_date', $node->created);
-  $user = user_load(array('uid' => $node->uid));
-  $name = theme('activitystream_username', $user);
-  return '<span class="activitystream-item">' . theme('activitystream_delicious_icon') . " <span>$name " . t('linked to'). " " . l($node->title, $action->link) . " <span class=\"activitystream-created\">$date</span></span>" . l('#', 'node/' . $node->nid, array('attributes' => array('class' => 'permalink'))) . '</span>';
+/**
+ * Theme an ActivityStream Delicious item.
+ *
+ * @param $variables
+ *   An associative array containing:
+ *   - action: The ActivityStream activity array.
+ */
+function theme_activitystream_delicious_item($variables) {
+  $node = node_load($variables['action']['nid']);
+  $date = theme('activitystream_date', array('date' => $node->created));
+  $user = user_load($node->uid);
+  $name = theme('activitystream_username', array('user' => $user));
+  return '<span class="activitystream-item">' . theme('activitystream_delicious_icon') . " <span>$name " . t('linked to'). " " . l($node->title, $variables['action']->link) . " <span class=\"activitystream-created\">$date</span></span>" . l('#', 'node/' . $node->nid, array('attributes' => array('class' => 'permalink'))) . '</span>';
 }
 
+/**
+ * Implements hook_theme().
+ */
 function activitystream_delicious_theme() {
   return array(
     'activitystream_delicious_icon' => array(
