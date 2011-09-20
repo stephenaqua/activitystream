@@ -90,10 +90,25 @@ function activitystream_menu() {
  * Implementation of hook_perm().
  */
 function activitystream_permission() {
-  $default_perms = array('edit own stream items' => array('title' => t('Edit own stream items')), 'edit any stream item'=> array('title' => t('Edit any stream items')), 'delete own stream items' => array('title' => t('Delete own stream items')), 'delete any stream item' => array('title' => t('Delete own stream items')));
+  $default_perms = array(
+    'edit own stream items' => array(
+      'title' => t('Edit own stream items')
+    ),
+    'edit any stream item'=> array(
+      'title' => t('Edit any stream item')
+    ),
+    'delete own stream items' => array(
+      'title' => t('Delete own stream items')
+    ),
+    'delete any stream item' => array(
+      'title' => t('Delete any stream item')
+    )
+  );
   $module_perms = array();
   foreach (module_implements('activitystream_settings') as $name) {
-    $module_perms['use '. $name] = array('title'=> t('Use') . ' ' . $name . ' ' . t('module'));
+    $module_perms['use '. $name] = array(
+      'title'=> t('Use') . ' ' . $name . ' ' . t('module')
+    );
   }
   //TODO: Get description from individual modules
   return array_merge($default_perms, $module_perms);
